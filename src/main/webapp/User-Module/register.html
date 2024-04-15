@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/jquery-3.7.1.js"></script>
+    <title>注册</title>
+</head>
+<body>
+<h1>用户注册</h1>
+<h5>请输入以下所有信息</h5>
+    <form id="register-form">
+        <label for="username">用户名:</label>
+        <input type="text" id="username" name="username"><br>
+        <label for="Sdcard">身份证号：</label>
+        <input type="text" id="Sdcard" name="Sdcard"><br>
+        <label for="nickname">昵称：</label>
+        <input type="text" id="nickname" name="nickname"><br>
+        <label for="password">密码：</label>
+        <input type="password" id="password" name="password">字母和数字的组合，不少于8位<br>
+        <label for="check_password">再次输入密码：</label>
+        <input type="password" id="check_password" name="check_password"><br>
+        <label for="phoneNumber">手机号：</label>
+        <input type="text" id="phoneNumber" name="phoneNumber"><br>
+        <label for="address">地址：</label>
+        <input type="text" id="address" name="address"><br>
+        <label for="email">邮箱：</label>
+        <input type="text" id="email" name="email"><br><br>
+        <button type="button" id="register-btn">注册</button>
+    </form>
+    <script>
+        $(document).ready(function () {
+            $('#register-btn').click(function () {
+                var username=$('#username').val();
+                var Sdcard=$('#Sdcard').val();
+                var nickname=$('#nickname').val();
+                var password=$('#password').val();
+                var check_password=$('#check_password').val();
+                var phoneNumber=$('#phoneNumber').val();
+                var address=$('#address').val();
+                var email=$('#email').val();
+                // 验证密码
+                if (!checkPassword_1(password)) {
+                    alert("密码必须包含至少一个字母和一个数字，并且长度不少于8位。");
+                    return;
+                }
+                if(!checkPassword_2(password,check_password)){
+                    alert("两次输入密码不一致，请重新输入！");
+                    return;
+                }
+                $.ajax({
+                    url:'http://localhost:8080/user?method=register',
+                    type:'POST',
+                    dataType:'json',
+                    data:{
+                        username:username,
+                        Sdcard:Sdcard,
+                        nickname:nickname,
+                        password:password,
+                        check_password:check_password,
+                        phoneNumber:phoneNumber,
+                        address:address,
+                        email:email,
+                    },
+                    success:function (response) {
+                            alert(response.msg);
+                            if(response.success) {
+                                window.location.href = "./login.html"; // 注册成功后跳转到登录页面
+                            }
+                    },
+                    error: function (error){
+                        console.log(error);
+                    }
+                });
+            });
+        });
+        function checkPassword_1(password) {
+            // 使用正则表达式进行校验
+            var regex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+            return regex.test(password);
+        }
+        function checkPassword_2(password_1,password_2){
+            return password_1===password_2;
+        }
+    </script>
+</body>
+</html>

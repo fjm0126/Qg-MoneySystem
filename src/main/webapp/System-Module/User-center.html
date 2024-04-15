@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/jquery-3.7.1.js"></script>
+    <title>用户中心</title>
+</head>
+<body>
+    <h1>用户中心</h1>
+    <div id="personal-info">
+        <h3>个人信息</h3>
+        <p><img id="avatar" src="" alt="avatar"></p>
+        <p>用户名：<span id="username"></span></p>
+        <p>身份证号：<span id="Sdcard"></span></p>
+        <p>昵称：<span id="nickname"></span></p>
+        <p>手机号：<span id="phoneNumber"></span></p>
+        <p>地址：<span id="address"></span></p>
+        <p>邮箱：<span id="email"></span></p>
+        <p>个人资金：<span id="personal_fund"></span></p>
+        <p>所属企业群组：<span id="company_name"></span></p>
+    </div>
+    <button type="button" id="enterprise-btn">查看所有企业群组</button>
+    <button type="button" id="exit-btn">退出登录</button>
+    <script>
+        $(document).ready(function () {
+           $.ajax({
+               url: 'http://localhost:8080/user?method=showInformation',
+               type: 'GET',
+               dataType: 'json',
+               success:function (response){
+                   if(response.success===false){
+                       alert(response.msg);
+                   }
+                   $('#avatar').attr('src', "../User-Module/avatar_image/"+response.avatarUrl);
+                   $('#username').text(response.username);
+                   $('#Sdcard').text(response.Sdcard);
+                   $('#nickname').text(response.nickname);
+                   $('#phoneNumber').text(response.phoneNumber);
+                   $('#address').text(response.address);
+                   $('#email').text(response.email);
+                   $('#personal_fund').text(response.personal_fund);
+                   $('#company_name').text(response.company_name);
+               },
+               error:function (error){
+                   console.log(error);
+               }
+           });
+        });
+        $('#enterprise-btn').click(function () {
+           window.location.href="./enterprise-groups.html";
+        });
+        $('#exit-btn').click(function (){
+            $.ajax({
+                url:'http://localhost:8080/user?method=loginOut',
+                type: 'GET',
+                dataType: 'json',
+                success:function (response){
+                    sessionStorage.clear();
+                    alert(response.msg);
+                    window.location.href="../User-Module/login.html";
+                    history.pushState({}, '', '../User-Module/login.html'); // 清除浏览器历史记录
+                },
+                error:function (error){
+                    console.log(error);
+                }
+            })
+        });
+    </script>
+</body>
+</html>

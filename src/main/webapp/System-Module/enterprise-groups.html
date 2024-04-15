@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="../js/jquery-3.7.1.js"></script>
+  <title>企业群组</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+<h1>企业群组</h1>
+<div>
+  <button id="showAllBtn">显示所有企业</button>
+</div>
+<div>
+  <label for="search">搜索企业：</label>
+  <input type="text" id="search" name="search">
+  <button id="searchBtn">搜索</button>
+</div>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Member Count</th>
+    <th>Scale</th>
+    <th>Direction</th>
+    <th>Creator Name</th>
+    <th>Enterprise Fund</th>
+  </tr>
+  <tbody id="groupInfo">
+  </tbody>
+</table>
+<p>还没有登录？<a href="../User-Module/login.html">登录</a><p>
+<script>
+  let isLoggedIn=true;
+  $(document).ready(function() {
+    // 从会话中获取用户信息
+    var userInfo = sessionStorage.getItem("user");
+    // 如果用户信息存在，则表示用户已登录
+    isLoggedIn = !!userInfo;
+  });
+  $(document).ready(function() {
+    // 显示所有企业按钮点击事件
+    $("#showAllBtn").click(function() {
+      showAllEnterprise();
+    });
+
+    // 搜索按钮点击事件
+    $("#searchBtn").click(function() {
+      var keyword = $("#search").val();
+      searchEnterprise(keyword);
+    });
+
+    // 默认显示所有企业
+    showAllEnterprise();
+
+    // 显示所有企业的函数
+    function showAllEnterprise() {
+      $.ajax({
+        url: 'http://localhost:8080/enterprise?method=showEnterprise',
+        type: "GET",
+        dataType: "json",
+        success: function(response) {
+          displayEnterprise(response);
+        },
+        error:function (xhr, status, error){
+          console.error("Error fetching group data:", error);
+        }
+      });
+    }
+
+    // 搜索企业的函数
+    function searchEnterprise(keyword) {
+      $.ajax({
+        url: 'http://localhost:8080/enterprise?method=searchEnterprise',
+        type: "GET",
+        data: { keyword: keyword
+        },
+        dataType: "json",
+        success: function(response) {
+          displayEnterprise(response);
+        },
+        error:function (xhr, status, error){
+          console.error("Error fetching group data:", error);
+        }
+      });
+    }
+
+    // 显示企业信息的函数
+    function displayEnterprise(enterprises) {
+      var groupInfoHtml = "";
+      $.each(enterprises, function(index, group) {
+        groupInfoHtml += "<tr>";
+        groupInfoHtml += "<td>" + group.name + "</td>";
+        groupInfoHtml += "<td>" + group.peopleNumber + "</td>";
+        groupInfoHtml += "<td>" + group.scale + "</td>";
+        groupInfoHtml += "<td>" + group.work_orientation + "</td>";
+        groupInfoHtml += "<td>" + group.creator_name + "</td>";
+        groupInfoHtml += "<td>" + group.money + "</td>";
+        if (isLoggedIn) {
+          groupInfoHtml += "<td><button>申请加入</button></td>";
+        } else {
+          groupInfoHtml += "<td><button disabled>登录后申请加入</button></td>";
+        }
+        groupInfoHtml += "</tr>";
+      });
+      $("#groupInfo").html(groupInfoHtml);
+    }
+  });
+</script>
+</body>
+</html>

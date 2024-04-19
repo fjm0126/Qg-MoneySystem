@@ -10,17 +10,22 @@
     <h1>用户中心</h1>
     <div id="personal-info">
         <h3>个人信息</h3>
-        <p><img id="avatar" src="" alt="avatar"></p>
-        <p>用户名：<span id="username"></span></p>
-        <p>身份证号：<span id="Sdcard"></span></p>
-        <p>昵称：<span id="nickname"></span></p>
-        <p>手机号：<span id="phoneNumber"></span></p>
-        <p>地址：<span id="address"></span></p>
-        <p>邮箱：<span id="email"></span></p>
-        <p>个人资金：<span id="personal_fund"></span></p>
+        <p><img id="avatar" src="" alt="avatar">  <button class="update-btn" data-info="avatar">修改</button></p>
+        <p>用户名：<span id="username"></span>  <button class="update-btn" data-info="username">修改</button></p>
+        <p>身份证号：<span id="Sdcard"></span>  <button class="update-btn" data-info="Sdcard">修改</button></p>
+        <p>昵称：<span id="nickname"></span>  <button class="update-btn" data-info="nickname">修改</button></p>
+        <p>手机号：<span id="phoneNumber"></span>  <button class="update-btn" data-info="phoneNumber">修改</button></p>
+        <p>地址：<span id="address"></span>  <button class="update-btn" data-info="address">修改</button></p>
+        <p>邮箱：<span id="email"></span>  <button class="update-btn" data-info="email">修改</button></p>
+        <p>个人资金：<span id="personal_fund"></span>  <button type="button" id="charge-btn">资金充值</button></p>
         <p>所属企业群组：<span id="company_name"></span></p>
     </div>
-    <button type="button" id="enterprise-btn">查看所有企业群组</button>
+    <button type="button" id="enterprise-btn">查看所有企业群组</button><br>
+    <button type="button" id="transfer-btn">转账</button>
+    <button type="button" id="flows-btn">查看个人账单流水</button>
+    <button type="button" id="showPersonalGroup-btn">查看所属企业群组</button><br>
+    <button type="button" id="createGroup-btn">申请创办企业群组</button>
+    <button class="update-btn" data-info="password">修改密码</button><br><br><br>
     <button type="button" id="exit-btn">退出登录</button>
     <script>
         $(document).ready(function () {
@@ -31,6 +36,7 @@
                success:function (response){
                    if(response.success===false){
                        alert(response.msg);
+                       window.location.href='../User-Module/login.html';
                    }
                    $('#avatar').attr('src', "../User-Module/avatar_image/"+response.avatarUrl);
                    $('#username').text(response.username);
@@ -64,7 +70,33 @@
                 error:function (error){
                     console.log(error);
                 }
-            })
+            });
+        });
+        $('.update-btn').click(function () {
+            var infoType = $(this).data('info');
+            var currentValue;
+            if(infoType==='avatar')
+            {
+                currentValue=$('#avatar').attr('src');
+            }else {
+                currentValue = $('#' + infoType).text();
+            }
+            window.location.href = './update-information.html?info=' + infoType + '&value=' + currentValue;
+        });
+        $('#charge-btn').click(function (){
+            window.location.href='./charge-money.html';
+        });
+        $('#flows-btn').click(function () {
+            window.location.href='./personal_bill.html';
+        });
+        $('#createGroup-btn').click(function (){
+           window.location.href='./createGroup.html';
+        });
+        $('#showPersonalGroup-btn').click(function () {
+           window.location.href='PersonalGroup.html';
+        });
+        $('#transfer-btn').click(function () {
+           window.location.href='./transfer-money.html';
         });
     </script>
 </body>

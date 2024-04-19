@@ -8,4 +8,5 @@ import java.util.List;
 public interface EnterpriseDao {
     List<Enterprise> showEnterprise() throws SQLException;
     List<Enterprise> serachEnterprise(String keyword) throws SQLException;
+    int createEnterprise(Enterprise enterprise) throws SQLException;
 }

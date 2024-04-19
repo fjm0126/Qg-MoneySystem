@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/jquery-3.7.1.js"></script>
+    <title>转账</title>
+</head>
+<body>
+<h1>转账</h1>
+<form id="spendForm" enctype="multipart/form-data">
+        <label for="paymentMethod">选择支付方式：</label>
+        <select id="paymentMethod" name="paymentMethod">
+            <option value="groupFunds">使用企业群组分配资金支付</option>
+            <option value="personalFunds">使用个人资金支付</option>
+        </select><br>
+        <label for="money">转账金额：</label>
+        <input type="text" id="money" name="money"><br>
+        <label for="transfer_name">转账对象用户名：</label>
+        <input type="text" id="transfer_name" name="transfer_name"><br>
+        <label for="password">密码：</label>
+        <input type="password" id="password" name="password"><br>
+</form>
+<button type="button" id="transfer-btn">确认转账</button>
+<script>
+    $(document).ready(function() {
+        $("#transfer-btn").click(function() {
+            var paymentMethod=$('#paymentMethod').val();
+            var money=$('#money').val();
+            var transfer_name=$("#transfer_name").val();
+            var password=$("#password").val();
+            $.ajax({
+                url: "http://localhost:8080/user?method=transferMoney",
+                type: "POST",
+                dataType:"json",
+                data:{
+                    paymentMethod:paymentMethod,
+                    money:money,
+                    transfer_name:transfer_name,
+                    password:password,
+                },
+                success: function(response) {
+                    alert(response.msg);
+                    if(response.success){
+                        window.location.href="./User-center.html";
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error:", error);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

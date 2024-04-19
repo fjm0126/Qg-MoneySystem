@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/jquery-3.7.1.js"></script>
+    <title>所属企业群组信息</title>
+</head>
+<body>
+<div id="personal-info">
+    <h3>所属企业群组信息</h3>
+    <p>企业名称：<span id="name"></span></p>
+    <p>人数：<span id="member_count"></span></p>
+    <p>规模：<span id="scale"></span></p>
+    <p>工作方向：<span id="direction"></span></p>
+    <p>负责人：<span id="creator_name"></span></p>
+    <p>企业资金余额：<span id="enterprise_fund"></span></p>
+    <p>模式：<span id="access_mode"></span></p>
+</div>
+<button type="button" id="exit-btn">退出企业群组</button>
+<button type="button" id="delete_btn">注销企业</button>
+<button type="button" id="turnBack-btn">返回</button>
+<script>
+    $(document).ready(function () {
+       $.ajax({
+           url:'http://localhost:8080/user?method=showPersonal_enterprise',
+           type:'GET',
+           dataType:'json',
+           success:function (response) {
+               if(response.success===false){
+                   alert(response.msg);
+                   window.location.href='./User-center.html';
+               }
+               $('#name').text(response.name);
+               $('#member_count').text(response.member_count);
+               $('#scale').text(response.scale);
+               $('#direction').text(response.direction);
+               $('#creator_name').text(response.creator_name);
+               $('#enterprise_fund').text(response.enterprise_fund);
+               $('#access_mode').text(response.access_mode);
+           },
+           error:function (error){
+               console.log(error);
+           }
+       });
+    });
+    $('#exit-btn').click(function () {
+       $.ajax({
+            url:'http://localhost:8080/user?method=exitPersonal_enterprise',
+            type:'POST',
+            dataType:'json',
+            success:function (response) {
+                alert(response.msg);
+                if(response.success){
+                    window.location.href='./User-center.html';
+                }
+            },
+           error:function (error) {
+               console.log(error);
+           }
+       });
+    });
+    $('#turnBack-btn').click(function () {
+       window.location.href='./User-center.html';
+    });
+    $('#delete_btn').click(function () {
+        $.ajax({
+            url:'http://localhost:8080/user?method=deleteEnterprise',
+            type:'POST',
+            dataType:'json',
+            success:function (response) {
+                alert(response.msg);
+                if(response.success){
+                    window.location.href='./User-center.html';
+                }
+            },
+            error:function (error) {
+                console.log(error);
+            }
+        });
+    });
+</script>
+</body>
+</html>

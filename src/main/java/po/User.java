@@ -8,6 +8,15 @@ public class User {
     private String phoneNumber;
     private String address;
     private String email;
+    private String avatat;
+
+    public String getAvatat() {
+        return avatat;
+    }
+
+    public void setAvatat(String avatat) {
+        this.avatat = avatat;
+    }
 
     public User(){
 

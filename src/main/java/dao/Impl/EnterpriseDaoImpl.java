@@ -63,4 +63,21 @@ public class EnterpriseDaoImpl implements EnterpriseDao {
         return enterpriseGroups;
     }
 
+    @Override
+    public int createEnterprise(Enterprise enterprise) throws SQLException {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ComeTrueConnectionpool comeTrueConnectionpool = new ComeTrueConnectionpool();
+        comeTrueConnectionpool.initialConnectionpool();
+        conn = comeTrueConnectionpool.getconnection();
+        String sql = "insert into enterprisegroup(name,member_count,scale,direction,creator_name,access_mode) values(?,?,?,?,?,?) ";
+        stmt = conn.prepareStatement(sql);
+        stmt.setObject(1, enterprise.getName());
+        stmt.setObject(2, enterprise.getPeopleNumber());
+        stmt.setObject(3, enterprise.getScale());
+        stmt.setObject(4, enterprise.getWork_orientation());
+        stmt.setObject(5, enterprise.getCreator_name());
+        stmt.setObject(6, enterprise.getAccess_mode());
+        return stmt.executeUpdate();
+    }
 }

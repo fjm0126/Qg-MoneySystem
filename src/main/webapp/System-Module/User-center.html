@@ -5,6 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="../js/jquery-3.7.1.js"></script>
     <title>用户中心</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        #personal-info {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #personal-info h3 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 10px;
+        }
+
+        img {
+            max-width: 100px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #enterprise-btn,
+        #exit-btn {
+            margin-top: 20px;
+        }
+
+        #exit-btn {
+            background-color: #dc3545;
+        }
+
+        #exit-btn:hover {
+            background-color: #c82333;
+        }
+
+        #actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #actions button {
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
     <h1>用户中心</h1>
@@ -20,6 +93,7 @@
         <p>个人资金：<span id="personal_fund"></span>  <button type="button" id="charge-btn">资金充值</button></p>
         <p>所属企业群组：<span id="company_name"></span></p>
     </div>
+    <div id="actions">
     <button type="button" id="enterprise-btn">查看所有企业群组</button><br>
     <button type="button" id="transfer-btn">转账</button>
     <button type="button" id="flows-btn">查看个人账单流水</button>
@@ -27,6 +101,7 @@
     <button type="button" id="createGroup-btn">申请创办企业群组</button>
     <button class="update-btn" data-info="password">修改密码</button><br><br><br>
     <button type="button" id="exit-btn">退出登录</button>
+    </div>
     <script>
         $(document).ready(function () {
            $.ajax({

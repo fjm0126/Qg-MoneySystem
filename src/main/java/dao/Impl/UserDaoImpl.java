@@ -18,20 +18,6 @@ import java.util.Objects;
 
 public class UserDaoImpl implements UserDao{
     // 生成指定长度的随机密钥
-    private static String generateRandomKey(int length) {
-        byte[] bytes = new byte[length];
-        SecureRandom random = new SecureRandom();
-        random.nextBytes(bytes);
-        return bytesToHex(bytes);
-    }
-    // 将字节数组转换为十六进制字符串
-    private static String bytesToHex(byte[] bytes) {
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : bytes) {
-            hexString.append(String.format("%02x", b));
-        }
-        return hexString.toString();
-    }
     @Override
     public int insert(User user) throws SQLException {
         Connection conn = null;
@@ -87,6 +73,25 @@ public class UserDaoImpl implements UserDao{
             return "找回密码失败，信息有误或账户不存在！";
         }
     }
+
+    @Override
+    public String check_status(String username) throws SQLException {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs=null;
+        ComeTrueConnectionpool comeTrueConnectionpool=new ComeTrueConnectionpool();
+        comeTrueConnectionpool.initialConnectionpool();
+        conn=comeTrueConnectionpool.getconnection();
+        String sql="select status from user where username=?";
+        stmt=conn.prepareStatement(sql);
+        stmt.setObject(1,username);
+        rs=stmt.executeQuery();
+        if(rs.next()){
+            return rs.getString("status");
+        }
+        return null;
+    }
+
     public Map<String, Object> showInformation(User user) throws SQLException {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -241,7 +246,6 @@ public class UserDaoImpl implements UserDao{
 
                         // 提交事务
                         conn.commit();
-                        return 1; // 转账成功
                     } else {
                         return 0; // 个人资金不足，转账失败
                     }
@@ -266,6 +270,13 @@ public class UserDaoImpl implements UserDao{
                             stmt.setObject(2, transfer_name);
                             stmt.executeUpdate();
                             personalFlowsDao.insert(personalFlows2);
+
+                            String sql3="update enterprisegroup set enterprise_fund=enterprise_fund-? where name=?";
+                            String enterprise_name=userEnterpriseDao.getEnterprise_name(username);
+                            stmt=conn.prepareStatement(sql3);
+                            stmt.setObject(1,money);
+                            stmt.setObject(2,enterprise_name);
+                            stmt.executeUpdate();
                             // 提交事务
                             conn.commit();
                         } else {
@@ -287,6 +298,6 @@ public class UserDaoImpl implements UserDao{
                 }
                 conn.close();
             }
-            return 0;
+        return 1;
         }
 }

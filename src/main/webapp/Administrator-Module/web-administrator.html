@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>网站管理员登录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/jquery-3.7.1.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        input[type="password"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h1>网站管理员登录</h1>
+    <form>
+        <label for="password">密钥：</label>
+        <input type="password" id="password" name="password" required>
+        <button type="button" id="login-btn">确认登录</button>
+    </form>
+</div>
+<script>
+    $(document).ready(function(){
+        $('#login-btn').click(function(){
+            var password = $('#password').val();
+            $.ajax({
+                url: 'http://localhost:8080/administrator?method=login',
+                type: 'GET',
+                dataType: 'json',
+                data: {
+                    password: password,
+                },
+                success: function(response){
+                    alert(response.msg);
+                    if(response.success) {
+                        window.location.href ='./administrator-center.html'
+                        history.pushState({}, '', './administrator-center.html'); // 清除浏览器历史记录
+                    }
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

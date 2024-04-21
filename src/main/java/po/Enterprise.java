@@ -9,6 +9,15 @@ public class Enterprise {
     private String work_orientation; //工作方向
     private double money; //企业资金余额
     private String access_mode;
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public String getAccess_mode() {
         return access_mode;

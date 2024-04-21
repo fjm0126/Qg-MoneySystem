@@ -18,4 +18,5 @@ public interface UserDao{
      void updateEnterprise(String enterprise,String username) throws SQLException;
      int transferMoney(String username,String method,double money,String transfer_name) throws SQLException;
      boolean ismoneyEnough(String username,double money) throws SQLException;
+     String check_status(String username) throws SQLException;
 }

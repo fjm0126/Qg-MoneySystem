@@ -5,6 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="../js/jquery-3.7.1.js"></script>
     <title>所属企业群组信息</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        #personal-info {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            text-align: center;
+            color: #333;
+        }
+
+        p {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        span {
+            font-weight: bold;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            max-width: 200px;
+            margin: 10px auto;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:last-child {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 <div id="personal-info">
@@ -17,6 +70,11 @@
     <p>企业资金余额：<span id="enterprise_fund"></span></p>
     <p>模式：<span id="access_mode"></span></p>
 </div>
+<button type="button" id="charge">充值资金</button>
+<button type="button" id="allot-money">分配资金</button>
+<button type="button" id="pullUser">拉取用户进入群组</button>
+<button type="button" id="check_flows">查看流水账单</button>
+<button type="button" id="apply_administrator">申请成为管理员</button><br>
 <button type="button" id="exit-btn">退出企业群组</button>
 <button type="button" id="delete_btn">注销企业</button>
 <button type="button" id="turnBack-btn">返回</button>
@@ -41,6 +99,31 @@
            },
            error:function (error){
                console.log(error);
+           }
+       });
+    });
+    $('#charge').click(function () {
+       window.location.href="./Enterprise_charge_money.html";
+    });
+    $('#allot-money').click(function () {
+       window.location.href='./allot_money.html';
+    });
+    $('#pullUser').click(function () {
+        window.location.href='./pull_user.html';
+    });
+    $('#check_flows').click(function () {
+        window.location.href="./Enterprise_bill.html";
+    });
+    $('#apply_administrator').click(function () {
+       $.ajax({
+           url:'http://localhost:8080/user?method=apply_administrator',
+           type:'POST',
+           dataType:'json',
+           success:function (response) {
+               alert(response.msg);
+           },
+           error:function (error) {
+                console.log(error);
            }
        });
     });

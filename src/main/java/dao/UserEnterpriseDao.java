@@ -14,4 +14,10 @@ public interface UserEnterpriseDao {
     boolean deleteEnterprise(String username) throws SQLException;
     boolean ismoneyEnough(String username,double money) throws SQLException;
     String serachEnterprise(String username) throws SQLException;
+    boolean chargeMoney(String username,double money) throws SQLException;
+    boolean isPrincipalOrAdministrator(String username) throws SQLException;
+    String getEnterprise_name(String username) throws SQLException;
+    boolean apply_administrator(String username) throws SQLException;
+    int allot_money(String username,String allot_name,double money)throws SQLException;
+    int pull_enter(String pull_name,String username) throws SQLException;
 }

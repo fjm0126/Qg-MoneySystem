@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class EnterpriseDaoImpl implements EnterpriseDao {
     @Override
@@ -32,6 +33,7 @@ public class EnterpriseDaoImpl implements EnterpriseDao {
             group.setWork_orientation(rs.getString("direction"));
             group.setCreator_name(rs.getString("creator_name"));
             group.setMoney(rs.getDouble("enterprise_fund"));
+            group.setStatus(rs.getString("status"));
             enterpriseGroups.add(group);
         }
         return enterpriseGroups;
@@ -62,7 +64,6 @@ public class EnterpriseDaoImpl implements EnterpriseDao {
         }
         return enterpriseGroups;
     }
-
     @Override
     public int createEnterprise(Enterprise enterprise) throws SQLException {
         Connection conn = null;

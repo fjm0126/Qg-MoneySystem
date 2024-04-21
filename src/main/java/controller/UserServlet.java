@@ -150,16 +150,22 @@ public class UserServlet extends BaseServlet{
         PrintWriter out = response.getWriter();
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user"); // 从session中获取用户信息
+        Map<String, Object> resultMap = new HashMap<>();
         if (user == null) {
             // 用户未登录，返回错误信息
-            Map<String, Object> resultMap = new HashMap<>();
             resultMap.put("success", false);
             resultMap.put("msg", "用户未登录");
             out.println(new Gson().toJson(resultMap));
             return;
         }
         UserDaoImpl userDaoImpl = new UserDaoImpl();
-        Map<String, Object> resultMap = userDaoImpl.showInformation(user);
+        if(Objects.equals(userDaoImpl.check_status(user.getUsername()), "封禁")){
+            resultMap.put("success", false);
+            resultMap.put("msg", "用户已被封禁");
+            out.println(new Gson().toJson(resultMap));
+            return;
+        }
+        resultMap = userDaoImpl.showInformation(user);
         out.println(new Gson().toJson(resultMap));
     }
     public void updateInformation(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
@@ -294,6 +300,12 @@ public class UserServlet extends BaseServlet{
             out.println(new Gson().toJson(resultMap));
             return;
         }
+        if(Objects.equals(userEnterpriseDao.check_status(user.getUsername()), "封禁")){
+            resultMap.put("success",false);
+            resultMap.put("msg","该企业已被封禁！");
+            out.println(new Gson().toJson(resultMap));
+            return;
+        }
          out.println(new Gson().toJson(resultMap));
     }
     public void exitPersonal_enterprise(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -396,6 +408,21 @@ public class UserServlet extends BaseServlet{
         }else{
             resultMap.put("success",true);
             resultMap.put("msg","转账成功");
+            out.println(new Gson().toJson(resultMap));
+        }
+    }
+    public void apply_administrator(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+        Map<String, Object> resultMap = new HashMap<>();
+        UserEnterpriseDaoImpl userEnterpriseDao=new UserEnterpriseDaoImpl();
+        if(userEnterpriseDao.apply_administrator(user.getUsername())){
+            resultMap.put("msg","申请成功");
+            out.println(new Gson().toJson(resultMap));
+        }else{
+            resultMap.put("msg","申请失败，你已是该企业负责人或管理员！");
             out.println(new Gson().toJson(resultMap));
         }
     }

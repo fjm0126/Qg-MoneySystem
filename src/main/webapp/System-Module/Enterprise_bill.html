@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/jquery-3.7.1.js"></script>
+    <title>企业流水账单</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+        margin-top: 30px;
+    }
+    table {
+        border-collapse: collapse;
+        width: 80%;
+        margin: 20px auto;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    button {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        background-color: #007bff;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+<body>
+<h1>企业流水账单</h1>
+<table class="table">
+    <tr>
+        <th>id</th>
+        <th>企业名称</th>
+        <th>金额</th>
+        <th>类别</th>
+        <th>对象</th>
+        <th>时间</th>
+    </tr>
+    <tbody id="financialBillTable">
+    </tbody>
+</table>
+   <button type="button" id="turn_back-btn">返回</button>
+<script>
+    $('#turn_back-btn').click(function () {
+        window.location.href='./PersonalGroup.html';
+    });
+    $(document).ready(function () {
+        $.ajax({
+            url:'http://localhost:8080/enterprise?method=showEnterprise_flows',
+            type:'GET',
+            dataType:'json',
+            success: function(response) {
+                displayFlows(response);
+            },
+            error:function (error){
+                console.log(error);
+            }
+        });
+    });
+    function displayFlows(flows) {
+        if(flows.success===false){
+            alert(flows.msg);
+            window.location.href='./PersonalGroup.html';
+            return;
+        }
+        var flowInfoHtml = "";
+        $.each(flows, function(index,flows) {
+            flowInfoHtml+= "<tr>";
+            flowInfoHtml+= "<td>" + flows.id + "</td>";
+            flowInfoHtml += "<td>" + flows.enterprise_name+ "</td>";
+            flowInfoHtml += "<td>" + flows.money + "</td>";
+            flowInfoHtml += "<td>" + flows.type + "</td>";
+            flowInfoHtml += "<td>" + flows.object + "</td>";
+            flowInfoHtml += "<td>" + flows.time + "</td>";
+            flowInfoHtml += "</tr>";
+        });
+        $('#financialBillTable').html(flowInfoHtml);
+    }
+</script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 package controller;
 
+import Utils.mailutils;
 import com.google.gson.Gson;
 import dao.Impl.Personal_flowsDaoImpl;
 import dao.Impl.UserDaoImpl;
@@ -10,6 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import po.Personal_flows;
 import po.User;
+
+import javax.mail.MessagingException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -23,14 +26,23 @@ public class UserServlet extends BaseServlet{
         response.setContentType("application/json");
         UserDaoImpl userDao=new UserDaoImpl();
         PrintWriter out = response.getWriter();
+        HttpSession session = request.getSession();
         Map<String, Object> resultMap = new HashMap<>();
         String username=request.getParameter("username");
         String password=request.getParameter("password");
         String Sdcard=request.getParameter("Sdcard");
-        if(Objects.equals(username, "") || Objects.equals(password, "") || Objects.equals(Sdcard, ""))
+        String check_code=request.getParameter("checkcode");
+        String correctCheckCode = (String) request.getSession().getAttribute("checkcode");
+        if(Objects.equals(username, "") || Objects.equals(password, "") || Objects.equals(Sdcard, "")|| Objects.equals(check_code, ""))
         {
             resultMap.put("success",false);
             resultMap.put("msg","所有信息不能为空！");
+            out.println(new Gson().toJson(resultMap));
+            return;
+        }
+        if(!check_code.equals(correctCheckCode)){
+            resultMap.put("success",false);
+            resultMap.put("msg","验证码错误，请重新输入！");
             out.println(new Gson().toJson(resultMap));
             return;
         }
@@ -43,7 +55,6 @@ public class UserServlet extends BaseServlet{
             resultMap.put("success",true);
             resultMap.put("msg","登录成功");
             resultMap.put("user",user_info);
-            HttpSession session= request.getSession();
             session.setAttribute("user", user_info); // 将用户信息存储在session中
             out.println(new Gson().toJson(resultMap));
         }else{
@@ -425,5 +436,15 @@ public class UserServlet extends BaseServlet{
             resultMap.put("msg","申请失败，你已是该企业负责人或管理员！");
             out.println(new Gson().toJson(resultMap));
         }
+    }
+    public void apply_Unban(HttpServletRequest request, HttpServletResponse response) throws MessagingException, IOException {
+        response.setContentType("application/json");
+        String name = request.getParameter("name");
+        String reason = request.getParameter("reason");
+        mailutils.sendMail2(name,"3123009960@mail2.gdut.edu.cn",reason);
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("msg","申请成功,请等待管理员处理！");
+        PrintWriter out = response.getWriter();
+        out.println(new Gson().toJson(resultMap));
     }
 }

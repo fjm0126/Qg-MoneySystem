@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/jquery-3.7.1.js"></script>
+    <title>恢复申请</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #recoveryForm {
+            max-width: 500px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<h1>恢复申请</h1>
+<form id="recoveryForm">
+    <label for="name">用户名或企业名称：</label>
+    <input type="text" id="name" name="name" required><br>
+    <label for="reason">申请理由：</label>
+    <textarea id="reason" name="reason" required></textarea><br>
+    <button type="submit">提交申请</button>
+    <p>申请提交缓慢，请耐心等待，请勿重复点击提交！</p>
+</form>
+<script>
+    $(document).ready(function() {
+        $('#recoveryForm').submit(function(event) {
+            event.preventDefault();
+            var formData = $(this).serialize();
+            $.ajax({
+                url: 'http://localhost:8080/user?method=apply_Unban',
+                type: 'POST',
+                datatype:"json",
+                data: formData,
+                success: function(response) {
+                    alert(response.msg);
+                    window.location.href='login.html';
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    alert('申请提交失败，请稍后重试。');
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

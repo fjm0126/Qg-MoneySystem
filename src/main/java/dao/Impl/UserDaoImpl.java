@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class UserDaoImpl implements UserDao{
-    // 生成指定长度的随机密钥
     @Override
     public int insert(User user) throws SQLException {
         Connection conn = null;

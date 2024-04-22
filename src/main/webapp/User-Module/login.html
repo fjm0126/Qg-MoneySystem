@@ -81,20 +81,30 @@
     <input type="password" id="password" name="password"><br>
     <label for="Sdcard">身份证号:</label>
     <input type="text" id="Sdcard" name="Sdcard"><br>
+    <label for="checkcode">验证码：</label>
+    <input type="text" id="checkcode" name="checkcode">
+    <img id="checkcode-img" src="/CheckCodeServlet" alt="验证码"><br>
     <button type="button" id="login-btn">登录</button>
     <button type="button" id="guest-btn">游客访问</button>
     <button type="button" id="website_adm">网站管理员登录</button>
 </form>
 <div class="link">
 <p>还没有账号？<a href="register.html">注册</a><p>
-<p>忘记密码？<a href="findPassword.html">找回密码</a>
+<p>忘记密码？<a href="findPassword.html">找回密码</a><p>
+<p>被封禁了？<a href="apply_Unban.html">申请解封</a><p>
 </div>
+
 <script>
     $(document).ready(function(){
+        // 点击验证码图片刷新验证码
+        $('#checkcode-img').click(function () {
+            $(this).attr('src', '/CheckCodeServlet?' + new Date().getTime());
+        });
         $('#login-btn').click(function(){
             var username = $('#username').val();
             var password = $('#password').val();
             var Sdcard=$('#Sdcard').val();
+            var checkcode = $('#checkcode').val();
             $.ajax({
                 url: 'http://localhost:8080/user?method=login',
                 type: 'GET',
@@ -102,7 +112,8 @@
                 data: {
                     username: username,
                     password: password,
-                    Sdcard:Sdcard
+                    Sdcard:Sdcard,
+                    checkcode: checkcode
                 },
                 success: function(response){
                     alert(response.msg);

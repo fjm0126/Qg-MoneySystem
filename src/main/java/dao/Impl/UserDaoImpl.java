@@ -5,9 +5,7 @@ import dao.UserDao;
 import po.Enterprise_flows;
 import po.Personal_flows;
 import po.User;
-import po.UserEnterprise;
 
-import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

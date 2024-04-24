@@ -75,6 +75,7 @@
 <button type="button" id="pullUser">拉取用户进入群组</button>
 <button type="button" id="check_flows">查看流水账单</button>
 <button type="button" id="apply_administrator">申请成为管理员</button><br>
+<button type="button" id="chat_room">进入聊天室</button>
 <button type="button" id="exit-btn">退出企业群组</button>
 <button type="button" id="delete_btn">注销企业</button>
 <button type="button" id="turnBack-btn">返回</button>
@@ -145,6 +146,9 @@
     });
     $('#turnBack-btn').click(function () {
        window.location.href='./User-center.html';
+    });
+    $('#chat_room').click(function () {
+        window.location.href='./chat_room.html';
     });
     $('#delete_btn').click(function () {
         $.ajax({

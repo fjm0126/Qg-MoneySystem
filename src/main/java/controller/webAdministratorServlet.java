@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import po.User;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-
+@Slf4j
 @WebServlet("/administrator")
 public class webAdministratorServlet extends BaseServlet{
     public void login(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
@@ -32,24 +33,25 @@ public class webAdministratorServlet extends BaseServlet{
             out.println(new Gson().toJson(resultMap));
             return;
         }
-        ComeTrueConnectionpool comeTrueConnectionpool=new ComeTrueConnectionpool();
-        comeTrueConnectionpool.initialConnectionpool();
-        conn=comeTrueConnectionpool.getconnection();
-        String sql="select password from websiteadministrator";
-        stmt=conn.prepareStatement(sql);
-        rs=stmt.executeQuery();
-        if(rs.next()){
-            String check_password= rs.getString("password");
-            if(!Objects.equals(check_password, password)){
-                resultMap.put("success",false);
-                resultMap.put("msg","登录失败,密钥错误");
-                out.println(new Gson().toJson(resultMap));
-            }else{
-                resultMap.put("success",true);
-                resultMap.put("msg","登录成功");
-                out.println(new Gson().toJson(resultMap));
+
+            ComeTrueConnectionpool comeTrueConnectionpool = new ComeTrueConnectionpool();
+            comeTrueConnectionpool.initialConnectionpool();
+            conn = comeTrueConnectionpool.getconnection();
+            String sql = "select password from websiteadministrator";
+            stmt = conn.prepareStatement(sql);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                String check_password = rs.getString("password");
+                if (!Objects.equals(check_password, password)) {
+                    resultMap.put("success", false);
+                    resultMap.put("msg", "登录失败,密钥错误");
+                    out.println(new Gson().toJson(resultMap));
+                } else {
+                    resultMap.put("success", true);
+                    resultMap.put("msg", "登录成功");
+                    out.println(new Gson().toJson(resultMap));
+                }
             }
-        }
     }
     public void showUser(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
         response.setContentType("application/json");

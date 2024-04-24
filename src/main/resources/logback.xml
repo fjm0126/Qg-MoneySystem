@@ -2,11 +2,11 @@
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>D:\javaproject\QG-MoneyManagementSystem\logback\logback.log</file>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy:HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="FILE"/>
     </root>
 </configuration>

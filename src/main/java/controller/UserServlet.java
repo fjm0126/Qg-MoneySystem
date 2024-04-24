@@ -9,6 +9,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import po.Personal_flows;
 import po.User;
 
@@ -18,14 +19,18 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.*;
 
-
+@Slf4j
 @WebServlet("/user")
 public class UserServlet extends BaseServlet{
-    //User user_info=new User();
-    public void login(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+    public void login(HttpServletRequest request, HttpServletResponse response)  {
         response.setContentType("application/json");
         UserDaoImpl userDao=new UserDaoImpl();
-        PrintWriter out = response.getWriter();
+        PrintWriter out = null;
+        try {
+            out = response.getWriter();
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
         HttpSession session = request.getSession();
         Map<String, Object> resultMap = new HashMap<>();
         String username=request.getParameter("username");
@@ -50,7 +55,12 @@ public class UserServlet extends BaseServlet{
         user_info.setUsername(username);
         user_info.setPassword(password);
         user_info.setSdcard(Sdcard);
-        boolean flag=userDao.login(user_info);
+        boolean flag= false;
+        try {
+            flag = userDao.login(user_info);
+        } catch (SQLException e) {
+           log.info(e.getMessage());
+        }
         if(flag){
             resultMap.put("success",true);
             resultMap.put("msg","登录成功");
@@ -63,17 +73,27 @@ public class UserServlet extends BaseServlet{
             out.println(new Gson().toJson(resultMap));
         }
     }
-    public void loginOut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void loginOut(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session=request.getSession();
         session.invalidate();;
-        PrintWriter out = response.getWriter();
+        PrintWriter out = null;
+        try {
+            out = response.getWriter();
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("msg","退出成功！");
         out.println(new Gson().toJson(resultMap));
     }
-    public void register(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void register(HttpServletRequest request, HttpServletResponse response)  {
         response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
+        PrintWriter out = null;
+        try {
+            out = response.getWriter();
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
         Map<String, Object> resultMap = new HashMap<>();
         String username=request.getParameter("username");
         String Sdcard=request.getParameter("Sdcard");
@@ -105,21 +125,34 @@ public class UserServlet extends BaseServlet{
         }
         User user=new User(username,Sdcard,nickname,password,phoneNumber,address,email);
         UserDaoImpl userDao=new UserDaoImpl();
-        if(userDao.isUsernameExists(username))
-        {
-            resultMap.put("success",false);
-            resultMap.put("msg","注册失败!用户名已存在,请重新输入");
-            out.println(new Gson().toJson(resultMap));
-            return;
+        try {
+            if(userDao.isUsernameExists(username))
+            {
+                resultMap.put("success",false);
+                resultMap.put("msg","注册失败!用户名已存在,请重新输入");
+                out.println(new Gson().toJson(resultMap));
+                return;
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
-        if(userDao.isSdcardExists(Sdcard))
-        {
-            resultMap.put("success",false);
-            resultMap.put("msg","注册失败!身份证号已存在,请重新输入");
-            out.println(new Gson().toJson(resultMap));
-            return;
+        try {
+            if(userDao.isSdcardExists(Sdcard))
+            {
+                resultMap.put("success",false);
+                resultMap.put("msg","注册失败!身份证号已存在,请重新输入");
+                out.println(new Gson().toJson(resultMap));
+                return;
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
-        int rows=userDao.insert(user);
+        int rows= 0;
+        try {
+            rows = userDao.insert(user);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         if(rows>0){
             resultMap.put("success",true);
             resultMap.put("msg","注册成功，请登录！");
@@ -131,7 +164,7 @@ public class UserServlet extends BaseServlet{
             out.println(new Gson().toJson(resultMap));
         }
     }
-    public void findPassword(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void findPassword(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         PrintWriter out=response.getWriter();
         Map<String, Object> resultMap = new HashMap<>();
@@ -139,7 +172,12 @@ public class UserServlet extends BaseServlet{
         String username=request.getParameter("username");
         String Sdcard=request.getParameter("Sdcard");
         String phoneNumber=request.getParameter("phoneNumber");
-        String msg=userDaoImpl.findPassword(username,Sdcard,phoneNumber);
+        String msg= null;
+        try {
+            msg = userDaoImpl.findPassword(username,Sdcard,phoneNumber);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         if(Objects.equals(username, "") || Objects.equals(Sdcard, "") || Objects.equals(phoneNumber, ""))
         {
             resultMap.put("success",false);
@@ -156,7 +194,9 @@ public class UserServlet extends BaseServlet{
         resultMap.put("msg",msg);
         out.println(new Gson().toJson(resultMap));
     }
-    public void showInformation(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+
+
+    public void showInformation(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         HttpSession session = request.getSession();
@@ -170,16 +210,24 @@ public class UserServlet extends BaseServlet{
             return;
         }
         UserDaoImpl userDaoImpl = new UserDaoImpl();
-        if(Objects.equals(userDaoImpl.check_status(user.getUsername()), "封禁")){
-            resultMap.put("success", false);
-            resultMap.put("msg", "用户已被封禁");
-            out.println(new Gson().toJson(resultMap));
-            return;
+        try {
+            if(Objects.equals(userDaoImpl.check_status(user.getUsername()), "封禁")){
+                resultMap.put("success", false);
+                resultMap.put("msg", "用户已被封禁");
+                out.println(new Gson().toJson(resultMap));
+                return;
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
-        resultMap = userDaoImpl.showInformation(user);
+        try {
+            resultMap = userDaoImpl.showInformation(user);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         out.println(new Gson().toJson(resultMap));
     }
-    public void updateInformation(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void updateInformation(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         Map<String, Object> resultMap = new HashMap<>();
@@ -189,20 +237,33 @@ public class UserServlet extends BaseServlet{
         String newValue=request.getParameter("newValue");
         UserDaoImpl userDaoImpl=new UserDaoImpl();
         Personal_flowsDaoImpl personalFlowsDao=new Personal_flowsDaoImpl();
-        if(Objects.equals(col, "username") &&userDaoImpl.isUsernameExists(newValue)){
-            resultMap.put("success", false);
-            resultMap.put("msg","修改失败,用户名已存在");
-            out.println(new Gson().toJson(resultMap));
-            return;
+        try {
+            if(Objects.equals(col, "username") &&userDaoImpl.isUsernameExists(newValue)){
+                resultMap.put("success", false);
+                resultMap.put("msg","修改失败,用户名已存在");
+                out.println(new Gson().toJson(resultMap));
+                return;
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
-        if(Objects.equals(col, "Sdcard") &&userDaoImpl.isSdcardExists(newValue)){
-            resultMap.put("success", false);
-            resultMap.put("msg","修改失败,身份证号已存在");
-            out.println(new Gson().toJson(resultMap));
-            return;
+        try {
+            if(Objects.equals(col, "Sdcard") &&userDaoImpl.isSdcardExists(newValue)){
+                resultMap.put("success", false);
+                resultMap.put("msg","修改失败,身份证号已存在");
+                out.println(new Gson().toJson(resultMap));
+                return;
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
         String name=user.getUsername();
-        int rs= userDaoImpl.updateInformation(user.getUsername(),col,newValue);
+        int rs= 0;
+        try {
+            rs = userDaoImpl.updateInformation(user.getUsername(),col,newValue);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         if(rs>0){
 
             // 更新用户信息中的对应字段
@@ -212,7 +273,11 @@ public class UserServlet extends BaseServlet{
                     break;
                 case "username":
                     user.setUsername(newValue);
-                    personalFlowsDao.updateUsername(name,newValue);
+                    try {
+                        personalFlowsDao.updateUsername(name,newValue);
+                    } catch (SQLException e) {
+                        log.error(e.getMessage());
+                    }
                     break;
                 case "password":
                     user.setPassword(newValue);
@@ -245,7 +310,7 @@ public class UserServlet extends BaseServlet{
         }
     }
 
-    public void chargeMoney(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void chargeMoney(HttpServletRequest request, HttpServletResponse response) throws IOException{
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         HttpSession session = request.getSession();
@@ -257,12 +322,21 @@ public class UserServlet extends BaseServlet{
         double money= Double.parseDouble(request.getParameter("amount"));
         String password=request.getParameter("password");
         if(Objects.equals(password, user.getPassword())){
-            boolean flag=userDaoImpl.chargeMoney(user.getUsername(),money);
+            boolean flag= false;
+            try {
+                flag = userDaoImpl.chargeMoney(user.getUsername(),money);
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+            }
             if(flag) {
                 personalFlows.setUsername(user.getUsername());
                 personalFlows.setMoney(money);
                 personalFlows.setType("充值");
-                personalFlowsDao.insert(personalFlows);
+                try {
+                    personalFlowsDao.insert(personalFlows);
+                } catch (SQLException e) {
+                    log.error(e.getMessage());
+                }
                 resultMap.put("success", true);
                 resultMap.put("msg", "充值成功");
                 out.println(new Gson().toJson(resultMap));
@@ -278,7 +352,7 @@ public class UserServlet extends BaseServlet{
             out.println(new Gson().toJson(resultMap));
         }
     }
-    public void showPersonal_flows(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void showPersonal_flows(HttpServletRequest request, HttpServletResponse response) throws IOException{
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         HttpSession session = request.getSession();
@@ -286,7 +360,11 @@ public class UserServlet extends BaseServlet{
         List<Personal_flows> flows = new ArrayList<>();
         Map<String, Object> resultMap = new HashMap<>();
         Personal_flowsDaoImpl personalFlowsDao=new Personal_flowsDaoImpl();
-        flows=personalFlowsDao.showPersonal_flows(user.getUsername());
+        try {
+            flows=personalFlowsDao.showPersonal_flows(user.getUsername());
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         if(flows.isEmpty())
         {
             resultMap.put("success", false);
@@ -342,7 +420,7 @@ public class UserServlet extends BaseServlet{
         }
     }
 
-    public void applyJoinEnterprise(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void applyJoinEnterprise(HttpServletRequest request, HttpServletResponse response) throws IOException{
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         HttpSession session = request.getSession();
@@ -351,36 +429,48 @@ public class UserServlet extends BaseServlet{
         Map<String, Object> resultMap = new HashMap<>();
         UserEnterpriseDaoImpl userEnterpriseDao=new UserEnterpriseDaoImpl();
         UserDaoImpl userDao=new UserDaoImpl();
-        if(userEnterpriseDao.searchIfExist(user.getUsername())==1){
-            resultMap.put("success",false);
-            resultMap.put("msg","申请失败，您已加入了一个企业群组，请先退出原来的企业群组");
-            out.println(new Gson().toJson(resultMap));
-            return;
+        try {
+            if(userEnterpriseDao.searchIfExist(user.getUsername())==1){
+                resultMap.put("success",false);
+                resultMap.put("msg","申请失败，您已加入了一个企业群组，请先退出原来的企业群组");
+                out.println(new Gson().toJson(resultMap));
+                return;
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
         userEnterpriseDao.applyJoinEnterprise(user.getUsername(),group_name);
-        userDao.updateEnterprise(group_name,user.getUsername());
+        try {
+            userDao.updateEnterprise(group_name,user.getUsername());
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         resultMap.put("success",true);
         resultMap.put("msg","申请加入成功");
         out.println(new Gson().toJson(resultMap));
     }
-    public void deleteEnterprise(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void deleteEnterprise(HttpServletRequest request, HttpServletResponse response) throws IOException{
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         Map<String, Object> resultMap = new HashMap<>();
         UserEnterpriseDaoImpl userEnterpriseDao=new UserEnterpriseDaoImpl();
-        if(userEnterpriseDao.deleteEnterprise(user.getUsername())){
-            resultMap.put("success",true);
-            resultMap.put("msg","注销成功");
-            out.println(new Gson().toJson(resultMap));
-        }else{
-            resultMap.put("success",false);
-            resultMap.put("msg","注销失败，您不是该企业负责人");
-            out.println(new Gson().toJson(resultMap));
+        try {
+            if(userEnterpriseDao.deleteEnterprise(user.getUsername())){
+                resultMap.put("success",true);
+                resultMap.put("msg","注销成功");
+                out.println(new Gson().toJson(resultMap));
+            }else{
+                resultMap.put("success",false);
+                resultMap.put("msg","注销失败，您不是该企业负责人");
+                out.println(new Gson().toJson(resultMap));
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
     }
-    public void transferMoney(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void transferMoney(HttpServletRequest request, HttpServletResponse response) throws IOException{
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         HttpSession session = request.getSession();
@@ -403,7 +493,12 @@ public class UserServlet extends BaseServlet{
             return;
         }
         UserDaoImpl userDao=new UserDaoImpl();
-        int rs= userDao.transferMoney(user.getUsername(),paymentMethod,money,transfer_name);
+        int rs= 0;
+        try {
+            rs = userDao.transferMoney(user.getUsername(),paymentMethod,money,transfer_name);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         if(rs==-3){
             resultMap.put("msg","转账失败，转账对象用户名不存在");
             out.println(new Gson().toJson(resultMap));
@@ -422,26 +517,34 @@ public class UserServlet extends BaseServlet{
             out.println(new Gson().toJson(resultMap));
         }
     }
-    public void apply_administrator(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void apply_administrator(HttpServletRequest request, HttpServletResponse response) throws IOException{
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         Map<String, Object> resultMap = new HashMap<>();
         UserEnterpriseDaoImpl userEnterpriseDao=new UserEnterpriseDaoImpl();
-        if(userEnterpriseDao.apply_administrator(user.getUsername())){
-            resultMap.put("msg","申请成功");
-            out.println(new Gson().toJson(resultMap));
-        }else{
-            resultMap.put("msg","申请失败，你已是该企业负责人或管理员！");
-            out.println(new Gson().toJson(resultMap));
+        try {
+            if(userEnterpriseDao.apply_administrator(user.getUsername())){
+                resultMap.put("msg","申请成功");
+                out.println(new Gson().toJson(resultMap));
+            }else{
+                resultMap.put("msg","申请失败，你已是该企业负责人或管理员！");
+                out.println(new Gson().toJson(resultMap));
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
     }
-    public void apply_Unban(HttpServletRequest request, HttpServletResponse response) throws MessagingException, IOException {
+    public void apply_Unban(HttpServletRequest request, HttpServletResponse response) throws  IOException {
         response.setContentType("application/json");
         String name = request.getParameter("name");
         String reason = request.getParameter("reason");
-        mailutils.sendMail2(name,"3123009960@mail2.gdut.edu.cn",reason);
+        try {
+            mailutils.sendMail2(name,"3123009960@mail2.gdut.edu.cn",reason);
+        } catch (MessagingException e) {
+            log.error(e.getMessage());
+        }
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("msg","申请成功,请等待管理员处理！");
         PrintWriter out = response.getWriter();

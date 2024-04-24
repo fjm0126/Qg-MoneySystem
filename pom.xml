@@ -47,6 +47,12 @@
         <scope>test</scope>
       </dependency>
       <dependency>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
+          <version>1.18.30</version>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
           <groupId>ch.qos.logback</groupId>
           <artifactId>logback-classic</artifactId>
           <version>1.4.14</version>
@@ -62,7 +68,12 @@
               <artifactId>javax.mail</artifactId>
               <version>1.6.2</version>
           </dependency>
-
+      <dependency>
+          <groupId>jakarta.websocket</groupId>
+          <artifactId>jakarta.websocket-api</artifactId>
+          <version>2.0.0</version>
+          <scope>provided</scope>
+      </dependency>
   </dependencies>
 
   <build>

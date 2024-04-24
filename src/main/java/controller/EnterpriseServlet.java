@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import po.Enterprise;
 import dao.Impl.EnterpriseDaoImpl;
 import po.Enterprise_flows;
@@ -18,29 +19,37 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.*;
-
+@Slf4j
 @WebServlet("/enterprise")
 public class EnterpriseServlet extends BaseServlet {
-    public void showEnterprise(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void showEnterprise(HttpServletRequest request, HttpServletResponse response) throws IOException{
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         List<Enterprise> enterpriseGroups = new ArrayList<>();
         EnterpriseDaoImpl enterpriseDao=new EnterpriseDaoImpl();
-        enterpriseGroups=enterpriseDao.showEnterprise();
+        try {
+            enterpriseGroups=enterpriseDao.showEnterprise();
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         String json = new Gson().toJson(enterpriseGroups);
         out.println(json);
     }
-    public void searchEnterprise(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void searchEnterprise(HttpServletRequest request, HttpServletResponse response) throws IOException{
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         String keyword=request.getParameter("keyword");
-        List<Enterprise> enterpriseGroups;
+        List<Enterprise> enterpriseGroups = List.of();
         EnterpriseDaoImpl enterpriseDao=new EnterpriseDaoImpl();
-        enterpriseGroups=enterpriseDao.serachEnterprise(keyword);
+        try {
+            enterpriseGroups=enterpriseDao.serachEnterprise(keyword);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         String json = new Gson().toJson(enterpriseGroups);
         out.println(json);
     }
-    public void createEnterprise(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void createEnterprise(HttpServletRequest request, HttpServletResponse response) throws IOException{
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         String name=request.getParameter("name");
@@ -65,10 +74,23 @@ public class EnterpriseServlet extends BaseServlet {
         }
         EnterpriseDaoImpl enterpriseDao=new EnterpriseDaoImpl();
         Enterprise enterprise=new Enterprise(name,member_count,scale,username,direction,access_mode);
-        int rs=enterpriseDao.createEnterprise(enterprise);
+        int rs= 0;
+        try {
+            rs = enterpriseDao.createEnterprise(enterprise);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         if(rs>0){
-            userEnterpriseDao.insert(userEnterprise);
-            userDao.updateEnterprise(name,username);
+            try {
+                userEnterpriseDao.insert(userEnterprise);
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+            }
+            try {
+                userDao.updateEnterprise(name,username);
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+            }
             resultMap.put("success",true);
             resultMap.put("msg","申请创建成功");
             out.println(new Gson().toJson(resultMap));
@@ -78,7 +100,7 @@ public class EnterpriseServlet extends BaseServlet {
             out.println(new Gson().toJson(resultMap));
         }
     }
-    public void chargeMoney(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void chargeMoney(HttpServletRequest request, HttpServletResponse response) throws IOException{
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         Map<String, Object> resultMap = new HashMap<>();
@@ -100,7 +122,12 @@ public class EnterpriseServlet extends BaseServlet {
             return;
         }
         UserEnterpriseDaoImpl userEnterpriseDao=new UserEnterpriseDaoImpl();
-        boolean rs=userEnterpriseDao.chargeMoney(user.getUsername(),money);
+        boolean rs= false;
+        try {
+            rs = userEnterpriseDao.chargeMoney(user.getUsername(),money);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         if(rs) {
             resultMap.put("success", true);
             resultMap.put("msg", "充值成功");
@@ -110,7 +137,7 @@ public class EnterpriseServlet extends BaseServlet {
             out.println(new Gson().toJson(resultMap));
         }
     }
-    public void showEnterprise_flows(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void showEnterprise_flows(HttpServletRequest request, HttpServletResponse response) throws IOException{
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         HttpSession session = request.getSession();
@@ -119,9 +146,23 @@ public class EnterpriseServlet extends BaseServlet {
         List<Enterprise_flows> enterpriseFlows=new ArrayList<>();
         Enterprise_flowsDaoImpl enterpriseFlowsDao=new Enterprise_flowsDaoImpl();
         UserEnterpriseDaoImpl userEnterpriseDao=new UserEnterpriseDaoImpl();
-        String enterprise_name=userEnterpriseDao.getEnterprise_name(user.getUsername());
-        enterpriseFlows=enterpriseFlowsDao.showEnterprise_flows(enterprise_name);
-        boolean flag=userEnterpriseDao.isPrincipalOrAdministrator(user.getUsername());
+        String enterprise_name= null;
+        try {
+            enterprise_name = userEnterpriseDao.getEnterprise_name(user.getUsername());
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        try {
+            enterpriseFlows=enterpriseFlowsDao.showEnterprise_flows(enterprise_name);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        boolean flag= false;
+        try {
+            flag = userEnterpriseDao.isPrincipalOrAdministrator(user.getUsername());
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         if(!flag){
             resultMap.put("success", false);
             resultMap.put("msg", "您不是该企业负责人或管理员，没有权限查看");
@@ -137,7 +178,7 @@ public class EnterpriseServlet extends BaseServlet {
         String json = new Gson().toJson(enterpriseFlows);
         out.println(json);
     }
-    public void allot_Money(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void allot_Money(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         HttpSession session = request.getSession();
@@ -147,7 +188,7 @@ public class EnterpriseServlet extends BaseServlet {
         String password=request.getParameter("password");
         String allot_name=request.getParameter("name");
         resultMap.put("success",false);
-        if(check_money==""||password==""||allot_name==""){
+        if(Objects.equals(check_money, "") || Objects.equals(password, "") || Objects.equals(allot_name, "")){
             resultMap.put("msg","请输入全部信息！");
             out.println(new Gson().toJson(resultMap));
             return;
@@ -159,7 +200,12 @@ public class EnterpriseServlet extends BaseServlet {
         }
         UserEnterpriseDaoImpl userEnterpriseDao=new UserEnterpriseDaoImpl();
         double money= Double.parseDouble(request.getParameter("money"));
-        int rs=userEnterpriseDao.allot_money(user.getUsername(),allot_name,money);
+        int rs= 0;
+        try {
+            rs = userEnterpriseDao.allot_money(user.getUsername(),allot_name,money);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         if(rs==-1){
             resultMap.put("msg","您不是该企业负责人或管理员，无法分配资金！");
             out.println(new Gson().toJson(resultMap));
@@ -175,7 +221,7 @@ public class EnterpriseServlet extends BaseServlet {
             out.println(new Gson().toJson(resultMap));
         }
     }
-    public void pull_enter(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
+    public void pull_enter(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         HttpSession session = request.getSession();
@@ -189,7 +235,12 @@ public class EnterpriseServlet extends BaseServlet {
             return;
         }
         UserEnterpriseDaoImpl userEnterpriseDao=new UserEnterpriseDaoImpl();
-        int rs=userEnterpriseDao.pull_enter(pull_name,user.getUsername());
+        int rs= 0;
+        try {
+            rs = userEnterpriseDao.pull_enter(pull_name,user.getUsername());
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
         if(rs==-1){
             resultMap.put("msg","您不是该企业管理员或负责人，无法拉人");
             out.println(new Gson().toJson(resultMap));

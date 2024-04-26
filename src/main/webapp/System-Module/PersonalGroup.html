@@ -71,6 +71,7 @@
     <p>模式：<span id="access_mode"></span></p>
 </div>
 <button type="button" id="charge">充值资金</button>
+<button type="button" id="transfer_money">转账</button>
 <button type="button" id="allot-money">分配资金</button>
 <button type="button" id="pullUser">拉取用户进入群组</button>
 <button type="button" id="check_flows">查看流水账单</button>
@@ -105,6 +106,9 @@
     });
     $('#charge').click(function () {
        window.location.href="./Enterprise_charge_money.html";
+    });
+    $('#transfer_money').click(function () {
+        window.location.href="./enterprise_transfer-money.html";
     });
     $('#allot-money').click(function () {
        window.location.href='./allot_money.html';

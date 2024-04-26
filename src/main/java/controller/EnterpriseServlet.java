@@ -256,4 +256,54 @@ public class EnterpriseServlet extends BaseServlet {
             out.println(new Gson().toJson(resultMap));
         }
     }
+    public void transfer_money(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+        Map<String, Object> resultMap = new HashMap<>();
+        String check_money=request.getParameter("money");
+        String password=request.getParameter("password");
+        String transfer_name=request.getParameter("transfer_name");
+        if(Objects.equals(check_money, "") || Objects.equals(password, "") || Objects.equals(transfer_name, "")){
+            resultMap.put("msg","请输入全部信息！");
+            out.println(new Gson().toJson(resultMap));
+            return;
+        }
+        resultMap.put("success",false);
+        double money= Double.parseDouble(request.getParameter("money"));
+        if(!Objects.equals(password, user.getPassword())){
+            resultMap.put("msg","密码错误！");
+            out.println(new Gson().toJson(resultMap));
+            return;
+        }
+        EnterpriseDaoImpl enterpriseDao=new EnterpriseDaoImpl();
+        UserEnterpriseDaoImpl userEnterpriseDao=new UserEnterpriseDaoImpl();
+        String enterprise_name=null;
+        try {
+           enterprise_name=userEnterpriseDao.getEnterprise_name(user.getUsername());
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        int rs=0;
+        try {
+           rs=enterpriseDao.transfer_money(user.getUsername(),enterprise_name,transfer_name,money);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        if(rs==-3){
+            resultMap.put("msg","转账失败，您不是该企业负责人或管理员");
+            out.println(new Gson().toJson(resultMap));
+        }else if(rs==-1){
+            resultMap.put("msg","转账失败,企业资金不足");
+            out.println(new Gson().toJson(resultMap));
+        }else if(rs==-2){
+            resultMap.put("msg","转账失败，转账企业不存在");
+            out.println(new Gson().toJson(resultMap));
+        }else{
+            resultMap.put("success",true);
+            resultMap.put("msg","转账成功！");
+            out.println(new Gson().toJson(resultMap));
+        }
+    }
 }

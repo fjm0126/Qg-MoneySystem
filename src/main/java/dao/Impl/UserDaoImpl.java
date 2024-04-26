@@ -226,6 +226,7 @@ public class UserDaoImpl implements UserDao{
             personalFlows2.setMoney(money);
             personalFlows2.setType("转账收入");
             personalFlows2.setObject(transfer_name);
+            synchronized (this) {
                 if (Objects.equals(method, "personalFunds")) {
                     if (ismoneyEnough(username, money)) {
                         String sql1 = "update user set personal_fund=personal_fund-? where username=?";
@@ -269,11 +270,11 @@ public class UserDaoImpl implements UserDao{
                             stmt.executeUpdate();
                             personalFlowsDao.insert(personalFlows2);
 
-                            String sql3="update enterprisegroup set enterprise_fund=enterprise_fund-? where name=?";
-                            String enterprise_name=userEnterpriseDao.getEnterprise_name(username);
-                            stmt=conn.prepareStatement(sql3);
-                            stmt.setObject(1,money);
-                            stmt.setObject(2,enterprise_name);
+                            String sql3 = "update enterprisegroup set enterprise_fund=enterprise_fund-? where name=?";
+                            String enterprise_name = userEnterpriseDao.getEnterprise_name(username);
+                            stmt = conn.prepareStatement(sql3);
+                            stmt.setObject(1, money);
+                            stmt.setObject(2, enterprise_name);
                             stmt.executeUpdate();
                             // 提交事务
                             conn.commit();
@@ -284,6 +285,7 @@ public class UserDaoImpl implements UserDao{
                         return -1; // 用户尚未加入企业群组，转账失败
                     }
                 }
+            }
         }catch(SQLException e){
                 // 回滚事务
                 conn.rollback();
@@ -295,6 +297,7 @@ public class UserDaoImpl implements UserDao{
                 }
                 conn.close();
             }
+
         return 1;
         }
 }

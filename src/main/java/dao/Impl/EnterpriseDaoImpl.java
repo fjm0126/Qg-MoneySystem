@@ -2,6 +2,7 @@ package dao.Impl;
 import ConnectionPool.*;
 import dao.EnterpriseDao;
 import po.Enterprise;
+import po.Enterprise_flows;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -80,5 +81,74 @@ public class EnterpriseDaoImpl implements EnterpriseDao {
         stmt.setObject(5, enterprise.getCreator_name());
         stmt.setObject(6, enterprise.getAccess_mode());
         return stmt.executeUpdate();
+    }
+    public int transfer_money(String username,String enterpriseName, String transfer_name, double money)throws SQLException{
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ComeTrueConnectionpool comeTrueConnectionpool = new ComeTrueConnectionpool();
+        comeTrueConnectionpool.initialConnectionpool();
+        conn = comeTrueConnectionpool.getconnection();
+        UserEnterpriseDaoImpl userEnterpriseDaoImpl=new UserEnterpriseDaoImpl();
+        Enterprise_flows enterpriseFlows1=new Enterprise_flows();
+        Enterprise_flows enterpriseFlows2=new Enterprise_flows();
+        Enterprise_flowsDaoImpl enterpriseFlowsDaoImpl=new Enterprise_flowsDaoImpl();
+        if(!userEnterpriseDaoImpl.isPrincipalOrAdministrator(username)){
+            return -3; //不是企业管理员或负责人，不能转账！
+        }
+        String sql1="select enterprise_fund from enterprisegroup where name=?";
+        stmt=conn.prepareStatement(sql1);
+        stmt.setObject(1,enterpriseName);
+        ResultSet rs=stmt.executeQuery();
+        if (rs.next()){
+            double check_money=rs.getDouble("enterprise_fund");
+            if(check_money<money){
+                return -1; //企业资金不足，转账失败
+            }
+        }
+        String sql2="select name from enterprisegroup where name=?";
+        stmt=conn.prepareStatement(sql2);
+        stmt.setObject(1,transfer_name);
+        rs=stmt.executeQuery();
+        if (!rs.next()){
+                return -2; //转账企业不存在
+        }
+        conn.setAutoCommit(false);
+        try {
+            synchronized (this) {
+                String sql3 = "update enterprisegroup set enterprise_fund=enterprise_fund-? where name=?";
+                stmt = conn.prepareStatement(sql3);
+                stmt.setObject(1, money);
+                stmt.setString(2, enterpriseName);
+                stmt.executeUpdate();
+                enterpriseFlows1.setEnterprise_name(enterpriseName);
+                enterpriseFlows1.setMoney(money);
+                enterpriseFlows1.setType("转账支出");
+                enterpriseFlows1.setObject(transfer_name);
+                enterpriseFlowsDaoImpl.insert(enterpriseFlows1);
+
+                String sql4 = "update enterprisegroup set enterprise_fund=enterprise_fund+? where name=?";
+                stmt = conn.prepareStatement(sql4);
+                stmt.setObject(1, money);
+                stmt.setString(2, transfer_name);
+                stmt.executeUpdate();
+                enterpriseFlows2.setEnterprise_name(transfer_name);
+                enterpriseFlows2.setMoney(money);
+                enterpriseFlows2.setObject(enterpriseName);
+                enterpriseFlows2.setType("转账收入");
+                enterpriseFlowsDaoImpl.insert(enterpriseFlows2);
+                conn.commit();
+            }
+        }catch (SQLException e) {
+            // 回滚事务
+            conn.rollback();
+            throw e; // 抛出异常以通知调用者发生了错误
+        } finally{
+            // 关闭连接
+            if (stmt != null) {
+                stmt.close();
+            }
+            conn.close();
+        }
+        return 1;
     }
 }

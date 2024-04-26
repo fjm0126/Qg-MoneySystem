@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/jquery-3.7.1.js"></script>
+    <title>网站管理员中心</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .status-normal {
+            color: green;
+        }
+        .status-banned {
+            color: red;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+        }
+        .action-buttons button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .action-buttons button.ban-btn {
+            background-color: red;
+            color: white;
+        }
+        .action-buttons button.unban-btn {
+            background-color: green;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<h1>用户和企业管理</h1>
+<h2>用户列表</h2>
+<table>
+    <thead>
+    <tr>
+        <th>用户名</th>
+        <th>状态</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody id="userTable">
+    </tbody>
+</table>
+<h2>企业列表</h2>
+<table>
+    <thead>
+    <tr>
+        <th>企业名称</th>
+        <th>状态</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody id="enterpriseTable">
+    </tbody>
+</table>
+<button type="button" id="turnBack-btn">返回</button>
+<script>
+    $(document).ready(function() {
+        showAllEnterprise();
+        showAllUsers();
+    });
+    function showAllUsers() {
+        $.ajax({
+            url: 'http://localhost:8080/administrator?method=showUser',
+            type: "GET",
+            dataType: "json",
+            success: function(response) {
+                var userInfoHtml = "";
+                $.each(response, function (index, user) {
+                    var statusClass = user.status === '正常' ? 'status-normal' : 'status-banned';
+                    var banBtnHtml = user.status === '正常' ?
+                        '<button class="ban-btn" onclick="banUser(\'' +user.username + '\')">封禁</button>' :
+                        '<button class="unban-btn" onclick="unbanUser(\'' + user.username + '\')">解除封禁</button>';
+                    userInfoHtml += '<tr>';
+                    userInfoHtml += '<td>' + user.username + '</td>';
+                    userInfoHtml += '<td class="' + statusClass + '">' + user.status + '</td>';
+                    userInfoHtml += '<td class="action-buttons">' + banBtnHtml + '</td>';
+                    userInfoHtml += '</tr>';
+                });
+                $('#userTable').html(userInfoHtml);
+            },
+            error:function (xhr, status, error){
+                console.error("Error fetching group data:", error);
+            }
+        });
+    }
+    function showAllEnterprise() {
+        $.ajax({
+            url: 'http://localhost:8080/enterprise?method=showEnterprise',
+            type: "GET",
+            dataType: "json",
+            success: function(response) {
+                displayEnterprise(response);
+            },
+            error:function (xhr, status, error){
+                console.error("Error fetching group data:", error);
+            }
+        });
+    }
+
+    function displayEnterprise(enterprises) {
+        var enterpriseInfoHtml = "";
+        $.each(enterprises, function (index, enterprise) {
+            var statusClass = enterprise.status === '正常' ? 'status-normal' : 'status-banned';
+            var banBtnHtml = enterprise.status === '正常' ?
+                '<button class="ban-btn" onclick="banEnterprise(\'' + enterprise.name + '\')">封禁</button>' :
+                '<button class="unban-btn" onclick="unbanEnterprise(\'' + enterprise.name + '\')">解除封禁</button>';
+            enterpriseInfoHtml += '<tr>';
+            enterpriseInfoHtml += '<td>' + enterprise.name + '</td>';
+            enterpriseInfoHtml += '<td class="' + statusClass + '">' + enterprise.status + '</td>';
+            enterpriseInfoHtml += '<td class="action-buttons">' + banBtnHtml + '</td>';
+            enterpriseInfoHtml += '</tr>';
+        });
+        $('#enterpriseTable').html(enterpriseInfoHtml);
+    }
+
+    function banEnterprise(name) {
+        $.ajax({
+            url: 'http://localhost:8080/administrator?method=banEnterprise',
+            type: 'POST',
+            data: { name: name },
+            dataType: 'json',
+            success: function(response) {
+                alert(response.msg);
+                if(response.success){
+                    window.location.href='administrator-center.html';
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('封禁企业时发生错误:', error);
+            }
+        });
+    }
+
+    function unbanEnterprise(name) {
+        $.ajax({
+            url: 'http://localhost:8080/administrator?method=unbanEnterprise',
+            type: 'POST',
+            data: { name: name },
+            dataType: 'json',
+            success: function(response) {
+                alert(response.msg);
+                if(response.success){
+                    window.location.href='administrator-center.html';
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('解封企业时发生错误:', error);
+            }
+        });
+    }
+    function banUser(name) {
+        $.ajax({
+            url: 'http://localhost:8080/administrator?method=banUser',
+            type: 'POST',
+            data: { name: name },
+            dataType: 'json',
+            success: function(response) {
+                alert(response.msg);
+                if(response.success){
+                    window.location.href='administrator-center.html';
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('封禁用户时发生错误:', error);
+            }
+        });
+    }
+
+    function unbanUser(name) {
+        $.ajax({
+            url: 'http://localhost:8080/administrator?method=unbanUser',
+            type: 'POST',
+            data: { name: name },
+            dataType: 'json',
+            success: function(response) {
+                alert(response.msg);
+                if(response.success){
+                    window.location.href='administrator-center.html';
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('解封用户时发生错误:', error);
+            }
+        });
+    }
+    $('#turnBack-btn').click(function () {
+        window.location.href='../User-Module/login.html';
+        history.pushState({}, '', '../User-Module/login.html'); // 清除浏览器历史记录
+    });
+</script>
+</body>
+</html>

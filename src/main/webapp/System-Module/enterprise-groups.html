@@ -6,17 +6,60 @@
   <script src="../js/jquery-3.7.1.js"></script>
   <title>企业群组</title>
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-top: 30px;
+    }
+    button {
+      display: inline-block;
+      margin-left: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007bff;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    div {
+      text-align: center;
+      margin-bottom: 10px;
+    }
     table {
       border-collapse: collapse;
-      width: 100%;
+      width: 90%;
+      margin: 20px auto;
     }
     th, td {
       border: 1px solid #dddddd;
-      text-align: left;
+      text-align: center;
       padding: 8px;
     }
     th {
       background-color: #f2f2f2;
+    }
+    input[type="text"] {
+      width: 40%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      vertical-align: middle;
+    }
+    #searchBtn {
+      padding: 8px 20px;
     }
   </style>
 </head>
@@ -32,16 +75,17 @@
 </div>
 <table>
   <tr>
-    <th>Name</th>
-    <th>Member Count</th>
-    <th>Scale</th>
-    <th>Direction</th>
-    <th>Creator Name</th>
-    <th>Enterprise Fund</th>
+    <th>企业群组名称</th>
+    <th>成员人数</th>
+    <th>规模</th>
+    <th>工作方向</th>
+    <th>创始人</th>
+    <th>资金余额</th>
   </tr>
   <tbody id="groupInfo">
   </tbody>
 </table>
+<button type="button" id="turnBack-btn">返回用户中心</button>
 <p>还没有登录？<a href="../User-Module/login.html">登录</a><p>
 <script>
   let isLoggedIn=true;
@@ -62,7 +106,10 @@
       var keyword = $("#search").val();
       searchEnterprise(keyword);
     });
-
+    //返回按钮点击事件
+    $('#turnBack-btn').click(function () {
+      window.location.href='./User-center.html';
+    });
     // 默认显示所有企业
     showAllEnterprise();
 
@@ -101,7 +148,7 @@
     // 显示企业信息的函数
     function displayEnterprise(enterprises) {
       var groupInfoHtml = "";
-      $.each(enterprises, function(index, group) {
+      $.each(enterprises, function(index,group) {
         groupInfoHtml += "<tr>";
         groupInfoHtml += "<td>" + group.name + "</td>";
         groupInfoHtml += "<td>" + group.peopleNumber + "</td>";
@@ -110,13 +157,33 @@
         groupInfoHtml += "<td>" + group.creator_name + "</td>";
         groupInfoHtml += "<td>" + group.money + "</td>";
         if (isLoggedIn) {
-          groupInfoHtml += "<td><button>申请加入</button></td>";
+          groupInfoHtml +="<td><button type='button' class='enter-btn' data-group-name='" + group.name + "'>申请加入</button></td>";
         } else {
           groupInfoHtml += "<td><button disabled>登录后申请加入</button></td>";
         }
         groupInfoHtml += "</tr>";
       });
       $("#groupInfo").html(groupInfoHtml);
+      // 为申请加入按钮添加点击事件处理程序
+      $(".enter-btn").click(function() {
+        // 获取被点击按钮所在行的企业名称
+        var groupName = $(this).data("group-name");
+        $.ajax({
+          url: 'http://localhost:8080/user?method=applyJoinEnterprise',
+          type: 'POST',
+          data: { groupName: groupName },
+          dataType: 'json',
+          success: function(response) {
+            alert(response.msg);
+            if(response.success){
+              window.location.href='./User-center.html';
+            }
+          },
+          error: function(error) {
+            console.log(error);
+          }
+        });
+      });
     }
   });
 </script>

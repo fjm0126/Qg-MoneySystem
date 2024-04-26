@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/jquery-3.7.1.js"></script>
+    <title>申请创建企业群组</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-top: 30px;
+        }
+
+        h5 {
+            text-align: center;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>申请创建企业群组</h1>
+    <h5>请输入以下信息</h5>
+    <form>
+        <label for="name">企业名称：</label>
+        <input type="text" id="name" name="name"><br>
+        <label for="username">负责人：</label>
+        <input type="text" id="username" name="username"><br>
+        <label for="member_count">企业人数：</label>
+        <input type="text" id="member_count" name="member_count"><br>
+        <label for="scale">企业规模：</label>
+        <input type="text" id="scale" name="scale"><br>
+        <label for="direction">工作方向：</label>
+        <input type="text" id="direction" name="direction"><br>
+        <label for="access_mode">选择模式：</label>
+            <select id="access_mode" name="access_mode">
+                <option value="public">公开</option>
+                <option value="private">私密</option>
+            </select><br>
+        <button type="button" id="create-btn">申请创建</button>
+    </form>
+    <script>
+        $(document).ready(function () {
+            $('#create-btn').click(function () {
+               var name=$('#name').val();
+               var username=$('#username').val();
+               var member_count=$('#member_count').val();
+               var scale=$('#scale').val();
+               var direction=$('#direction').val();
+               var access_mode=$('#access_mode').val();
+               $.ajax({
+                  url:'http://localhost:8080/enterprise?method=createEnterprise',
+                  type:'POST',
+                  dataType:'json',
+                  data:{
+                      name:name,
+                      username:username,
+                      member_count:member_count,
+                      scale:scale,
+                      direction:direction,
+                      access_mode:access_mode
+                  },
+                   success:function (response){
+                      alert(response.msg);
+                      if(response.success){
+                          window.location.href='./User-center.html';
+                      }
+                   },
+                   error:function (error){
+                      console.log(error);
+                   }
+               });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/jquery-3.7.1.js"></script>
+    <title>分配资金</title>
+</head>
+<body>
+<h1>分配资金</h1>
+<label for="name">分配用户名：</label>
+<input type="text" id="name" name="name"><br>
+<label for="money">金额：</label>
+<input type="text" id="money" name="money"><br>
+<label for="password">密码：</label>
+<input type="password" id="password" name="password">
+<button type="button" id="allot-btn">确认分配</button><br>
+<button type="button" id="turnBack-btn">返回</button>
+</body>
+<script>
+    $(document).ready(function () {
+        $('#allot-btn').click(function () {
+            var name=$('#name').val();
+            var money=$('#money').val();
+            var password=$('#password').val();
+            $.ajax({
+                url: 'http://localhost:8080/enterprise?method=allot_Money',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    name:name,
+                    money:money,
+                    password: password
+                },
+                success:function(response){
+                    alert(response.msg);
+                    if(response.success){
+                        window.location.href='./PersonalGroup.html';
+                    }
+                },
+                error:function (error){
+                    console.log(error);
+                }
+            })
+        })
+    });
+    $('#turnBack-btn').click(function () {
+        window.location.href='./PersonalGroup.html';
+    });
+</script>
+</html>

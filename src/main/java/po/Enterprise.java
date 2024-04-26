@@ -8,16 +8,35 @@ public class Enterprise {
     private String scale; //企业规模
     private String work_orientation; //工作方向
     private double money; //企业资金余额
+    private String access_mode;
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getAccess_mode() {
+        return access_mode;
+    }
+
+    public void setAccess_mode(String access_mode) {
+        this.access_mode = access_mode;
+    }
 
     public Enterprise() {
     }
 
-    public Enterprise(String name, int peopleNumber, String scale, String work_orientation, double money) {
+    public Enterprise(String name, int peopleNumber, String scale, String creator_name,String work_orientation, String access_mode) {
         this.name = name;
         this.peopleNumber = peopleNumber;
         this.scale = scale;
         this.work_orientation = work_orientation;
-        this.money = money;
+        this.access_mode = access_mode;
+        this.creator_name=creator_name;
     }
 
     public String getCreator_name() {

@@ -8,6 +8,24 @@ public class User {
     private String phoneNumber;
     private String address;
     private String email;
+    private String avatat;
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getAvatat() {
+        return avatat;
+    }
+
+    public void setAvatat(String avatat) {
+        this.avatat = avatat;
+    }
 
     public User(){
 

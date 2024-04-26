@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/jquery-3.7.1.js"></script>
+    <title>企业流水账单</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+        margin-top: 30px;
+    }
+    table {
+        border-collapse: collapse;
+        width: 80%;
+        margin: 20px auto;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    button {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        background-color: #007bff;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+<body>
+<h1>企业流水账单</h1>
+<table class="table">
+    <tr>
+        <th>id</th>
+        <th>企业名称</th>
+        <th>金额</th>
+        <th>类别</th>
+        <th>对象</th>
+        <th>时间</th>
+    </tr>
+    <tbody id="financialBillTable">
+    </tbody>
+</table>
+   <button type="button" id="turn_back-btn">返回</button>
+<button type="button" id="print">打印输出</button>
+<script>
+    $('#turn_back-btn').click(function () {
+        window.location.href='./PersonalGroup.html';
+    });
+    $(document).ready(function () {
+        $.ajax({
+            url:'http://localhost:8080/enterprise?method=showEnterprise_flows',
+            type:'GET',
+            dataType:'json',
+            success: function(response) {
+                displayFlows(response);
+            },
+            error:function (error){
+                console.log(error);
+            }
+        });
+    });
+    function displayFlows(flows) {
+        if(flows.success===false){
+            alert(flows.msg);
+            window.location.href='./PersonalGroup.html';
+            return;
+        }
+        var flowInfoHtml = "";
+        $.each(flows, function(index,flows) {
+            flowInfoHtml+= "<tr>";
+            flowInfoHtml+= "<td>" + flows.id + "</td>";
+            flowInfoHtml += "<td>" + flows.enterprise_name+ "</td>";
+            flowInfoHtml += "<td>" + flows.money + "</td>";
+            flowInfoHtml += "<td>" + flows.type + "</td>";
+            flowInfoHtml += "<td>" + flows.object + "</td>";
+            flowInfoHtml += "<td>" + flows.time + "</td>";
+            flowInfoHtml += "</tr>";
+        });
+        $('#financialBillTable').html(flowInfoHtml);
+    }
+    $('#print').click(function () {
+        // 获取表格的HTML内容
+        var tableHtml = $('#financialBillTable').html();
+
+        // 格式化表格内容为文本格式，包含标题行
+        var textContent = "id\t企业名称\t金额\t类别\t时间\n"; // 添加标题行
+        textContent += formatTableToText(tableHtml);
+
+        // 创建并下载文本文件
+        downloadTextFile(textContent, 'financial_bill.txt');
+    });
+
+    function formatTableToText(tableHtml) {
+        // 创建一个空字符串来保存格式化后的文本内容
+        var textContent = "";
+
+        // 解析表格内容并将其格式化为文本格式
+        $('#financialBillTable tr').each(function () {
+            $(this).find('td').each(function () {
+                textContent += $(this).text() + "\t"; // 使用制表符分隔单元格
+            });
+            textContent += "\n"; // 换行
+        });
+
+        return textContent;
+    }
+
+    function downloadTextFile(content, filename) {
+        // 创建一个新的Blob对象
+        var blob = new Blob([content], { type: 'text/plain' });
+
+        // 创建一个URL对象
+        var url = window.URL.createObjectURL(blob);
+
+        // 创建一个下载链接
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+
+        a.click();
+
+        // 释放URL对象
+        window.URL.revokeObjectURL(url);
+    }
+</script>
+</body>
+</html>

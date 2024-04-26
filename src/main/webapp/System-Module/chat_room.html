@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f1f1f1;
+        }
+
+        #chat-box {
+            width: 500px;
+            height: 400px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #fff;
+        }
+
+        #message-input {
+            width: calc(100% - 80px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+    </style>
+</head>
+<body>
+<div id="chat-box"></div>
+<input type="text" id="message-input" placeholder="输入你的消息">
+<button onclick="sendMessage()">Send</button>
+<script>
+    const chatBox = document.getElementById('chat-box');
+    const messageInput = document.getElementById('message-input');
+    let ws;
+    var userInfoString = sessionStorage.getItem("user");
+    var userInfo = JSON.parse(userInfoString);
+    var username=userInfo.username;
+    function connect() {
+        if (userInfo) {
+            ws = new WebSocket("ws://localhost:8080/chat");
+
+            ws.onopen = function(event) {
+                ws.send(username);
+                appendMessage("欢迎进入群聊");
+            };
+
+            ws.onmessage = function(event) {
+                appendMessage(event.data);
+            };
+
+            ws.onclose = function(event) {
+                appendMessage("连接关闭");
+            };
+        } else {
+            alert("无法获取用户信息，请重新登录！");
+        }
+    }
+
+    function sendMessage() {
+        if (!ws) {
+            alert("连接未建立，请重新连接！");
+            return;
+        }
+        const message = messageInput.value;
+        const fullMessage = userInfo.username + ": " + message;
+        ws.send(fullMessage);
+        messageInput.value = "";
+    }
+
+    function appendMessage(message) {
+        const messageElement = document.createElement("div");
+        messageElement.innerText = message;
+        chatBox.appendChild(messageElement);
+    }
+
+    connect();
+</script>
+</body>
+</html>

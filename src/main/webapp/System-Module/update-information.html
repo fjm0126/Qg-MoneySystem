@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修改信息</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-top: 30px;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<h1>修改信息</h1>
+<form id="update-form">
+    <label for="newValue">请输入新的信息：</label><br>
+    <input type="text" id="newValue" name="newValue"><br>
+    <input type="submit" value="提交">
+</form>
+
+<script src="../js/jquery-3.7.1.js"></script>
+<script>
+    $(document).ready(function () {
+        // 获取URL参数，确定要修改的信息类型和当前值
+        var urlParams = new URLSearchParams(window.location.search);
+        var infoType = urlParams.get('info');
+        var currentValue = urlParams.get('value');
+
+        // 预填写当前值
+        $('#newValue').val(currentValue);
+
+        // 监听表单提交事件
+        $('#update-form').submit(function (event) {
+            event.preventDefault(); // 阻止表单默认提交行为
+            // 获取新值
+            var newValue = $('#newValue').val();
+            // 发送更新请求到后端
+            $.ajax({
+                url: 'http://localhost:8080/user?method=updateInformation',
+                type: 'POST',
+                data: {
+                    infoType: infoType,
+                    newValue: newValue
+                },
+                dataType: 'json',
+                success: function (response) {
+                    alert(response.msg);
+                    if(response.success) {
+                        window.location.href = "./User-center.html"; // 更新完成后返回用户中心页面
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

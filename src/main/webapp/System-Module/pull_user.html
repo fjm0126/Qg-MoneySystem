@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/jquery-3.7.1.js"></script>
+    <title>拉取用户进入群组</title>
+</head>
+<body>
+<label for="name">拉入群组用户的用户名：</label>
+<input type="text" id="name" name="name">
+<button type="button" id="pull">确认拉入</button>
+<script>
+    $(document).ready(function () {
+        $('#pull').click(function () {
+            var name=$('#name').val();
+            $.ajax({
+                url: 'http://localhost:8080/enterprise?method=pull_enter',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    name:name
+                },
+                success:function(response){
+                    alert(response.msg);
+                    if(response.success){
+                        window.location.href='./PersonalGroup.html';
+                    }
+                },
+                error:function (error){
+                    console.log(error);
+                }
+            })
+        })
+    });
+</script>
+</body>
+</html>

@@ -220,11 +220,12 @@ public class UserDaoImpl implements UserDao{
             personalFlows.setUsername(username);
             personalFlows.setMoney(money);
             personalFlows.setType("转账支出");
+            personalFlows.setObject(transfer_name);
             Personal_flows personalFlows2 = new Personal_flows();
             personalFlows2.setUsername(transfer_name);
             personalFlows2.setMoney(money);
             personalFlows2.setType("转账收入");
-            synchronized (this) {
+            personalFlows2.setObject(transfer_name);
                 if (Objects.equals(method, "personalFunds")) {
                     if (ismoneyEnough(username, money)) {
                         String sql1 = "update user set personal_fund=personal_fund-? where username=?";
@@ -283,7 +284,6 @@ public class UserDaoImpl implements UserDao{
                         return -1; // 用户尚未加入企业群组，转账失败
                     }
                 }
-            }
         }catch(SQLException e){
                 // 回滚事务
                 conn.rollback();

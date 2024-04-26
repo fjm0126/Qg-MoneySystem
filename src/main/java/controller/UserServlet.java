@@ -332,6 +332,7 @@ public class UserServlet extends BaseServlet{
                 personalFlows.setUsername(user.getUsername());
                 personalFlows.setMoney(money);
                 personalFlows.setType("充值");
+                personalFlows.setObject(user.getUsername());
                 try {
                     personalFlowsDao.insert(personalFlows);
                 } catch (SQLException e) {

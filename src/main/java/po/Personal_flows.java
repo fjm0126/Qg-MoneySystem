@@ -6,6 +6,15 @@ public class Personal_flows {
     private double money;
     private String type;
     private String time;
+    private String object;
+
+    public String getObject() {
+        return object;
+    }
+
+    public void setObject(String object) {
+        this.object = object;
+    }
 
     public Personal_flows() {
     }

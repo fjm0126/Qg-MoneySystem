@@ -33,6 +33,7 @@ public class Personal_flowsDaoImpl implements Personal_flowsDao {
             personalFlows.setType(rs.getString("type"));
             personalFlows.setMoney(rs.getDouble("amount"));
             personalFlows.setTime(rs.getString("time"));
+            personalFlows.setObject(rs.getString("object"));
             flows.add(personalFlows);
         }
         return flows;
@@ -44,11 +45,12 @@ public class Personal_flowsDaoImpl implements Personal_flowsDao {
         ComeTrueConnectionpool comeTrueConnectionpool=new ComeTrueConnectionpool();
         comeTrueConnectionpool.initialConnectionpool();
         conn=comeTrueConnectionpool.getconnection();
-        String sql="insert into userfinancialflow(user_name,amount,type) values(?,?,?)";
+        String sql="insert into userfinancialflow(user_name,amount,type,object) values(?,?,?,?)";
         stmt=conn.prepareStatement(sql);
         stmt.setObject(1,personalFlows.getUsername());
         stmt.setObject(2,personalFlows.getMoney());
         stmt.setObject(3,personalFlows.getType());
+        stmt.setObject(4,personalFlows.getObject());
         stmt.executeUpdate();
     }
 
